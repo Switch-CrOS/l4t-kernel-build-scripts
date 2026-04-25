@@ -33,8 +33,8 @@ Prepare() {
 	fi
 
 	if [[ -z $(ls -A ${KERNEL_DIR}/nvidia) ]]; then
-		git clone -b ${NV_VER} --single-branch https://github.com/CTCaer/switch-l4t-kernel-nvidia.git "${KERNEL_DIR}/nvidia"
-		git clone -b ${NX_VER} --single-branch https://github.com/CTCaer/switch-l4t-platform-t210-nx.git "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx"
+		git clone -b ${NV_VER} --single-branch https://github.com/theofficialgman/switch-l4t-kernel-nvidia.git "${KERNEL_DIR}/nvidia"
+		git clone -b ${NX_VER} --single-branch https://github.com/theofficialgman/switch-l4t-platform-t210-nx.git "${KERNEL_DIR}/hardware/nvidia/platform/t210/nx"
 		git clone -b ${NG_VER} --single-branch https://gitlab.com/switchroot/kernel/l4t-kernel-nvgpu "${KERNEL_DIR}/nvgpu"
 		git clone -b ${DT_VER} --single-branch https://gitlab.com/switchroot/kernel/l4t-soc-t210 "${KERNEL_DIR}/hardware/nvidia/soc/t210"
 		git clone -b ${DT_VER} --single-branch https://gitlab.com/switchroot/kernel/l4t-soc-tegra "${KERNEL_DIR}/hardware/nvidia/soc/tegra/"
