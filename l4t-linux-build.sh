@@ -103,6 +103,25 @@ Build() {
 	# make .config
 	make tegra_linux_defconfig
 
+	# ChromiumOS needs all of this crap
+	scripts/config --enable SECURITYFS
+	scripts/config --enable SECURITY_NETWORK
+	scripts/config --enable SECURITY_NETWORK_XFRM
+	scripts/config --enable SECURITY_PATH
+	scripts/config --enable SECURITY_SELINUX
+	scripts/config --enable SECURITY_SELINUX_BOOTPARAM
+	scripts/config --set-val SECURITY_SELINUX_BOOTPARAM_VALUE 1
+	scripts/config --enable SECURITY_SELINUX_DISABLE
+	scripts/config --enable SECURITY_SELINUX_DEVELOP
+	scripts/config --enable SECURITY_SELINUX_AVC_STATS
+	scripts/config --set-val SECURITY_SELINUX_CHECKREQPROT_VALUE 0
+	scripts/config --enable QUOTA
+	scripts/config --enable QFMT_V2
+	scripts/config --enable QUOTACTL
+	scripts/config --enable DEFAULT_SECURITY_SELINUX
+	scripts/config --disable DEFAULT_SECURITY_DAC
+	make olddefconfig
+
 	# prepare for build
 	make prepare
 	make modules_prepare
