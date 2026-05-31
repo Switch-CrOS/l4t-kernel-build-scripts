@@ -120,6 +120,15 @@ Build() {
 	scripts/config --enable QUOTACTL
 	scripts/config --enable DEFAULT_SECURITY_SELINUX
 	scripts/config --disable DEFAULT_SECURITY_DAC
+
+	# The Switch has no hardware TPM, so ChromeOS runs a userspace software
+	# TPM2 (chromeos-base/tpm2-simulator). It needs the kernel vTPM proxy
+	# driver: tpm2-simulator opens /dev/vtpmx and registers a vTPM, which
+	# the kernel exposes as /dev/tpm0 for trunksd to talk to. Without this
+	# the whole hwsec stack (trunks/tpm_manager/chaps/attestation/cryptohome)
+	# has "No backend" and login/guest sessions fail.
+	scripts/config --enable TCG_TPM
+	scripts/config --enable TCG_VTPM_PROXY
 	make olddefconfig
 
 	# prepare for build
