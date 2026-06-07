@@ -121,6 +121,28 @@ Build() {
 	scripts/config --enable DEFAULT_SECURITY_SELINUX
 	scripts/config --disable DEFAULT_SECURITY_DAC
 
+	# The ChromeOS rootfs is ext2 (256-byte inodes) with SELinux labels baked
+	# into security.selinux xattrs.  build_image runs setfiles through the
+	# *ext4* driver (the SDK/builder host has no standalone ext2 driver), and
+	# ext4 stores small xattrs INLINE in the inode body, not in an external
+	# ACL block (File ACL: 0).  The stock L4T standalone CONFIG_EXT2_FS driver
+	# has no code path for inline/ibody xattrs -- it only reads i_file_acl --
+	# so getxattr(security.selinux) returns ENODATA for every file, even
+	# though debugfs and ext4 can see the labels.  Result: all inodes resolve
+	# to u:object_r:unlabeled:s0, every process stays in the initial
+	# u:r:kernel:s0 domain, and mojo_service_manager (which enforces
+	# context-based ACLs even in permissive mode) refuses service requests
+	# like CrosHealthdProbe -> the Diagnostics app is blank, login fails, etc.
+	# (Enabling EXT2_FS_SECURITY does NOT help: that driver still can't read
+	# inline xattrs.)  Fix it the way stock CrOS does: drop the standalone
+	# ext2/ext3 drivers and mount ext2 via ext4, which reads inline xattrs and
+	# already has EXT4_FS_SECURITY=y.  The rootfstype=ext2 cmdline keeps
+	# working because ext4 registers the ext2/ext3 fs names.
+	scripts/config --disable EXT2_FS
+	scripts/config --disable EXT3_FS
+	scripts/config --enable  EXT4_USE_FOR_EXT2
+	scripts/config --enable  EXT4_FS_SECURITY
+
 	# The Switch has no hardware TPM, so ChromeOS runs a userspace software
 	# TPM2 (chromeos-base/tpm2-simulator). It needs the kernel vTPM proxy
 	# driver: tpm2-simulator opens /dev/vtpmx and registers a vTPM, which
